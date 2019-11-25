@@ -50,6 +50,8 @@ data = raw_data.copy()
 import datetime as dt
 data['DMSTDESL_DT'] = pd.to_datetime(data['DMSTDESL'], format = '%Y%m%d')
 data['Sale_day_name'] = data['DMSTDESL_DT'].dt.weekday 
+
+# check out some columns
 sale_days = data['Sale_day_name'].unique() # sales happen on wednesdays
 sold = data[data['DMSOLD'] == 1]
 sold['DMSTDESL_DT'].groupby(sold['DMSTDESL_DT']).count().plot.bar()
@@ -57,6 +59,9 @@ sold['DMSTDESL_DT'].value_counts().plot.bar()
 
 pd.crosstab(data['DMMAKE'],data['DMSOLD']).plot.bar()
 pd.crosstab(data['DMMODEL'],data['DMSOLD']).plot.bar()
+pd.crosstab(data['DMJDCAT'], data['DMSOLD']).plot.bar()
+pd.pivot_table(data, index=['DMMAKE', 'DMMODEL'], columns=['DMSOLD'], aggfunc=len)
+data['DMSOLD'][data['DMSOLD']==1].groupby([data['DMMAKE'],data['DMMODEL']]).count()
 
 # make a column for week of month (1st week, 2nd week, 3rd week, ...)
 days = pd.DatetimeIndex(data['DMSTDESL_DT'].unique())
@@ -106,7 +111,7 @@ to_keep=[i for i in data_vars if i not in cat_cols]
 data_final=data_penult[to_keep]
 data_final.columns.values
 
-data_final.isnull().sum()
+#data_final.isnull().sum()
 
 # Make X and y datasets
 X = data_final.drop(['DMSOLD'], axis = 1)
@@ -207,6 +212,7 @@ def get_model_results(X_train, y_train, cat_cols):
     KNNbest_accuracy = KNNgrid_search.best_score_
     KNNbest_parameters = KNNgrid_search.best_params_
     dataset_results['KNN'] = [KNNbest_accuracy, KNNbest_parameters]
+    dt.datetime.now()
     
     # Grid Search Decision Tree
     print("Running CART Grid Search")
@@ -226,8 +232,10 @@ def get_model_results(X_train, y_train, cat_cols):
     # Grid Search SVC
     print("Running SVC Grid Search")
     SVCclassifier = SVC()
+#    SVCparameters = [{'C': [1, 10, 100, 1000], 'kernel': ['linear']},
+#                  {'C': [1, 10, 100, 1000], 'kernel': ['rbf','poly','sigmoid'],'degree':[3,4,5], 'gamma': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]}]
     SVCparameters = [{'C': [1, 10, 100, 1000], 'kernel': ['linear']},
-                  {'C': [1, 10, 100, 1000], 'kernel': ['rbf','poly','sigmoid'],'degree':[3,4,5], 'gamma': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]}]
+                  {'C': [1, 10, 100, 1000], 'kernel': ['rbf'], 'gamma': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]}]
     SVCgrid_search = GridSearchCV(estimator = SVCclassifier,
                                param_grid = SVCparameters,
                                scoring = 'accuracy',
