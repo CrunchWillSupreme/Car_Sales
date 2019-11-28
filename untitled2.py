@@ -29,6 +29,7 @@ from sklearn.model_selection import GridSearchCV
 # RFE (Recursive Feature Elimination)
 from sklearn.feature_selection import RFE
 import datetime as dt
+from sklearn.preprocessing import StandardScaler
 
 
 data_dict, raw_data, case_study = get_data()        
@@ -82,6 +83,28 @@ X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
 slr_results, slr_cm, slr_score, slr_columns, slr_feature_importances = get_model_results(X_train, y_train)
 
 
+data_penult = data[['DMSOLD', 'DMSELLRNM','DMMODEL','imp_STIMES']]
+cat_cols = ['DMSELLRNM','DMMODEL']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols, scaling = True)
+slr2_results, slr2_cm, slr2_score, slr2_columns, slr2_feature_importances = get_model_results(X_train, y_train)
+
+
+data_penult = data[['DMSOLD', 'AGEDDAYS']]
+X_train, X_test, y_train, y_test = prep_data(data_penult)
+AGEDDAYS_results, AGEDDAYS_cm, AGEDDAYS_score, AGEDDAYS_columns, AGEDDAYS_feature_importances = get_model_results(X_train, y_train)
+
+
+data_penult = data[['DMSOLD', 'AGEDDAYS','DMSELLRNM','DMMODEL']]
+cat_cols = ['DMSELLRNM','DMMODEL']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
+AGEDSLR_results, AGEDSLR_cm, AGEDSLR_score, AGEDSLR_columns, AGEDSLR_feature_importances = get_model_results(X_train, y_train)
+
+
+data_penult = data[['DMSOLD', 'AGEDDAYS','imp_STIMES']]
+X_train, X_test, y_train, y_test = prep_data(data_penult)
+AGEDimpS_results, AGEDimpS_cm, AGEDimpS_score, AGEDimpS_columns, AGEDimpS_feature_importances = get_model_results(X_train, y_train)
+
+
 data_penult = data[['STIMES_bin2','DMSOLD']]
 cat_cols = ['STIMES_bin2']
 X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
@@ -105,17 +128,27 @@ X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
 modelonly_results, modelonly_cm, modelonly_score, modelonly_columns, modelonly_feature_importances = get_model_results(X_train, y_train)
 
 
+# gives error on LDA - SVD did not converge
 data['SLRxMODEL'] = data['DMSELLRNM'] + ' ' + data['DMMODEL']
+data = data[data['DMMODEL'].notnull()]
+data['SLRxMODEL'].unique()
 data_penult = data[['SLRxMODEL', 'DMSOLD']]
 cat_cols = ['SLRxMODEL']
 X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
 SLRxMODEL_results, SLRxMODEL_cm, SLRxMODEL_score, SLRxMODEL_columns, SLRxMODEL_feature_importances = get_model_results(X_train, y_train)
 
-    
+
+
+data_penult = data[['DMMODELYR', 'DMSOLD']]
+X_train, X_test, y_train, y_test = prep_data(data_penult)
+MODELYR_results, MODELYR_cm, MODELYR_score, MODELYR_columns, MODELYR_feature_importances = get_model_results(X_train, y_train)    
+
 
 data_penult = data[['SFLOOR_IND', 'STIMES_bin2', 'Arbitration_bins', 'DMMODELYR_bins','DMSOLD']]
 cat_cols = data_penult.loc[:, data_penult.columns != 'DMSOLD'].columns
-results2 = initial_all_results
+X_train, X_test, y_train, y_test = prep_data(data_penult)
+MODELYR_results, MODELYR_cm, MODELYR_score, MODELYR_columns, MODELYR_feature_importances = get_model_results(X_train, y_train) 
+
 
 data['STIMESxArb'] = data['STIMES_bin2'] + " " + data['Arbitration_bins']
 ECRdata = data[data['SFLOOR_IND'] == 'N']
@@ -223,9 +256,11 @@ def prep_data(data_penult, cat_cols = False, scaling = False):
     #X = X.values
     if scaling:
         # scale the data - If dataset has continuous variables
-        from sklearn.preprocessing import StandardScaler
+        x_index = X.index
+        x_cols = X.columns        
         sc_X = StandardScaler()
         X = sc_X.fit_transform(X)
+        X = pd.DataFrame(data=X, index = x_index, columns=x_cols)
         #scaled_X = pd.DataFrame(data = scaled_X, columns = X.columns.tolist())        
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2)
     
@@ -242,7 +277,7 @@ def get_model_results(X_train, y_train):
     models.append(('CART', DecisionTreeClassifier()))
     models.append(('NB', GaussianNB()))
     #    models.append(('SVM', SVC(gamma='auto')))
-    #    models.append(('XGB', XGBClassifier()))
+    models.append(('XGB', XGBClassifier()))
     models.append(('RF', RandomForestClassifier()))
 
     results = []
