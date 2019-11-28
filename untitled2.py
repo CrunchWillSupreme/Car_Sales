@@ -17,7 +17,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score,precision_score,recall_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -64,6 +64,51 @@ c = data.columns
 #data[data.columns != drop_cols]
 
 # feature engineering
+data_penult = data[['DMSOLD', 'AGEDDAYS']]
+X_train, X_test, y_train, y_test = prep_data(data_penult)
+AGEDDAYS_results, AGEDDAYS_cm, AGEDDAYS_score, AGEDDAYS_columns, AGEDDAYS_feature_importances, AGEDDAYS_prec_rec = get_model_results(X_train, y_train)
+
+data_penult = data[['DMSOLD', 'AGEDDAYS','DMDETFEE']]
+X_train, X_test, y_train, y_test = prep_data(data_penult)
+AGEDFEE_results, AGEDFEE_cm, AGEDFEE_score, AGEDFEE_columns, AGEDFEE_feature_importances, AGEDFEE_prec_rec = get_model_results(X_train, y_train)
+
+data_penult = data[['DMSOLD', 'AGEDDAYS','imp_STIMES']]
+X_train, X_test, y_train, y_test = prep_data(data_penult)
+AGEDimpS_results, AGEDimpS_cm, AGEDimpS_score, AGEDimpS_columns, AGEDimpS_feature_importances, prec_rec = get_model_results(X_train, y_train)
+
+data_penult = data[['DMSOLD','% Arbitration', 'AGEDDAYS','DMECRDATE_IND']]
+cat_cols = ['DMECRDATE_IND']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
+ARBAGED_results, ARBAGED_cm, ARBAGED_score, ARBAGED_columns, ARBAGED_feature_importances, ARBAGED_prec_rec = get_model_results(X_train, y_train)
+
+data_penult = data[['DMSOLD','% Arbitration', 'AGEDDAYS']]
+X_train, X_test, y_train, y_test = prep_data(data_penult)
+ARB_results, ARB_cm, ARB_score, ARB_columns, ARB_feature_importances, ARB_prec_rec = get_model_results(X_train, y_train)
+
+############################################################################################
+
+data_penult = data[['AGEDDAYS','SFLOOR_IND','DMECRDATE_IND', 'STIMES_bin3', '% Arbitration', 'DMMODELYR','DMSOLD']]
+cat_cols = ['SFLOOR_IND','DMECRDATE_IND', 'STIMES_bin3']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
+results_11, cm_11, score_11, columns_11, feature_importances_11, prec_rec = get_model_results(X_train, y_train)
+
+data_penult = data[['DMSOLD', 'month_week']]
+cat_cols = ['month_week']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
+mWEEK_results, mWEEK_cm, mWEEK_score, mWEEK_columns, mWEEK_feature_importances, mWEEK_prec_rec = get_model_results(X_train, y_train)
+
+
+data_penult = data[['DMSOLD', 'Season']]
+cat_cols = ['Season']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
+season_results, season_cm, season_score, season_columns, season_feature_importances, season_prec_rec = get_model_results(X_train, y_train)
+
+
+data_penult = data[['DMSOLD', 'SMILES']]
+X_train, X_test, y_train, y_test = prep_data(data_penult)
+SMILES_results, SMILES_cm, SMILES_score, SMILES_columns, SMILES_feature_importances, SMILES_prec_rec = get_model_results(X_train, y_train)
+
+
 data_penult = data[['DMSTDESL', 'DMMONTH', 'DMSALWK', 'SLANE_', 'SRUN_', 'imp_STIMES','DMSOLD', 'DMSELLRNM',
                     'DMMODELYR', 'DMMODEL','SMILES', 'DMJDCAT', 'VNMMR', '% Arbitration','SFLOOR_IND','DMECRDATE_IND']]
 cat_cols = ['DMSELLRNM','DMMODEL','DMJDCAT','SFLOOR_IND','DMECRDATE_IND']
@@ -89,21 +134,10 @@ X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols, scaling = Tr
 slr2_results, slr2_cm, slr2_score, slr2_columns, slr2_feature_importances = get_model_results(X_train, y_train)
 
 
-data_penult = data[['DMSOLD', 'AGEDDAYS']]
-X_train, X_test, y_train, y_test = prep_data(data_penult)
-AGEDDAYS_results, AGEDDAYS_cm, AGEDDAYS_score, AGEDDAYS_columns, AGEDDAYS_feature_importances = get_model_results(X_train, y_train)
-
-
 data_penult = data[['DMSOLD', 'AGEDDAYS','DMSELLRNM','DMMODEL']]
 cat_cols = ['DMSELLRNM','DMMODEL']
 X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
-AGEDSLR_results, AGEDSLR_cm, AGEDSLR_score, AGEDSLR_columns, AGEDSLR_feature_importances = get_model_results(X_train, y_train)
-
-
-data_penult = data[['DMSOLD', 'AGEDDAYS','imp_STIMES']]
-X_train, X_test, y_train, y_test = prep_data(data_penult)
-AGEDimpS_results, AGEDimpS_cm, AGEDimpS_score, AGEDimpS_columns, AGEDimpS_feature_importances = get_model_results(X_train, y_train)
-
+AGEDSLR_results, AGEDSLR_cm, AGEDSLR_score, AGEDSLR_columns, AGEDSLR_feature_importances, AGEDSLR_prec_rec = get_model_results(X_train, y_train)
 
 data_penult = data[['STIMES_bin2','DMSOLD']]
 cat_cols = ['STIMES_bin2']
@@ -138,7 +172,6 @@ X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
 SLRxMODEL_results, SLRxMODEL_cm, SLRxMODEL_score, SLRxMODEL_columns, SLRxMODEL_feature_importances = get_model_results(X_train, y_train)
 
 
-
 data_penult = data[['DMMODELYR', 'DMSOLD']]
 X_train, X_test, y_train, y_test = prep_data(data_penult)
 MODELYR_results, MODELYR_cm, MODELYR_score, MODELYR_columns, MODELYR_feature_importances = get_model_results(X_train, y_train)    
@@ -148,6 +181,11 @@ data_penult = data[['SFLOOR_IND', 'STIMES_bin2', 'Arbitration_bins', 'DMMODELYR_
 cat_cols = data_penult.loc[:, data_penult.columns != 'DMSOLD'].columns
 X_train, X_test, y_train, y_test = prep_data(data_penult)
 MODELYR_results, MODELYR_cm, MODELYR_score, MODELYR_columns, MODELYR_feature_importances = get_model_results(X_train, y_train) 
+
+
+data_penult = data[['DMDETFEE','DMSOLD']]
+X_train, X_test, y_train, y_test = prep_data(data_penult)
+DETFEE_results, DETFEE_cm, DETFEE_score, DETFEE_columns, DETFEE_feature_importances, prec_rec = get_model_results(X_train, y_train) 
 
 
 data['STIMESxArb'] = data['STIMES_bin2'] + " " + data['Arbitration_bins']
@@ -187,6 +225,12 @@ data_penult = data[['STIMES_bin2','DMSOLD']]
 cat_cols = ['STIMES_bin2']
 data_final = data[['imp_STIMES','DMSOLD']]
 cat_cols = data_penult[['DMSELLRNM','DMMODEL','DMJDCAT','SFLOOR_IND','DMECRDATE_IND']]
+
+rfc = RandomForestClassifier()
+rfc.fit(X_train, y_train)
+y_pred = rfc.predict(X_test)
+rfe.feature_importances_
+pd.DataFrame({"features":X_train.columns, "importance":rfe.feature_importances_})
 
 
 from xgboost import XGBClassifier
@@ -230,6 +274,9 @@ def get_data():
             week +=1
             
     raw_data['month_week'] = raw_data['DMSTDESL_DT'].map(week_month)
+    season = pd.DataFrame({'M':[1,2,3,4,5,6,7,8,9,10,11,12],'Season':['W','W','S','S','S','Su','Su','Su','F','F','F','W']})
+    raw_data = pd.merge(raw_data,season,left_on='DMMONTH',right_on='M')
+    raw_data.drop('M',inplace=True,axis=1)
     return data_dict, raw_data, case_study
 
 def prep_data(data_penult, cat_cols = False, scaling = False):
@@ -287,6 +334,7 @@ def get_model_results(X_train, y_train):
     cm_dict = {}
     scores_dict = {}
     feature_importances = {}
+    prec_rec = {}
     print("Running initial models")
     for name, model in models:
         
@@ -306,14 +354,18 @@ def get_model_results(X_train, y_train):
         score = classifier.score(X_test, y_test)
         print("score:" + str(score))
         scores_dict[name] = score
-        if name not in ['CART','RF','NB']:
+        prec_score = precision_score(y_test,y_pred)
+        rec_score = recall_score(y_test, y_pred)
+        prec_rec[name] = [prec_score, rec_score]
+        print("prec_rec: ", prec_score, rec_score)
+        if name not in ['CART','RF','NB','XGB']:
             coef = classifier.coef_
             abs_coef = abs(coef)
             sorted_index = np.argsort(abs_coef)
     #        sorted_coef = abs_coef[sorted_index]
             sorted_cols = X_test.columns[sorted_index]
             columns[name] = sorted_cols
-        elif name in ['CART','NB']:
+        elif name in ['CART','NB','XGB']:
             continue
         else:
             importances = classifier.feature_importances_
@@ -330,7 +382,7 @@ def get_model_results(X_train, y_train):
 #    pyplot.title('Algorithm Comparison')
 #    pyplot.show()
     
-    return initial_all_results, cm_dict, scores_dict, columns, feature_importances
+    return initial_all_results, cm_dict, scores_dict, columns, feature_importances, prec_rec
 
 def rfe_feature_selection(models, X_train, y_train):
     rfe_columns = {}
