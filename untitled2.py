@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Nov  4 18:55:30 2019
-
 @author: willh
 """
 
@@ -30,7 +29,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.feature_selection import RFE
 import datetime as dt
 from sklearn.preprocessing import StandardScaler
-
+from xgboost import XGBClassifier
 
 data_dict, raw_data, case_study = get_data()        
 
@@ -92,21 +91,83 @@ cat_cols = ['SFLOOR_IND','DMECRDATE_IND', 'STIMES_bin3']
 X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
 results_11, cm_11, score_11, columns_11, feature_importances_11, prec_rec = get_model_results(X_train, y_train)
 
+data_penult = data[['DMSOLD', 'DMSELLRNM']]
+cat_cols = ['DMSELLRNM']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
+slronly_results, slronly_cm, slronly_score, slronly_columns, slronly_feature_importances, slronly_prec_rec = get_model_results(X_train, y_train)
+
+data_penult = data[['STIMES_bin3','DMSOLD']]
+cat_cols = ['STIMES_bin3']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
+STIMES3_results, STIMES3_cm, STIMES3_score, STIMES3_columns, STIMES3_feature_importances, STIMES3_prec_rec = get_model_results(X_train, y_train)
+
+data_penult = data[['DMSOLD', 'DMMODEL']]
+cat_cols = ['DMMODEL']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
+modelonly_results, modelonly_cm, modelonly_score, modelonly_columns, modelonly_feature_importances, modelonly_prec_rec = get_model_results(X_train, y_train)
+
+data_penult = data[['DMSOLD', '% Arbitration']]
+X_train, X_test, y_train, y_test = prep_data(data_penult)
+ARB_results, ARB_cm, ARB_score, ARB_columns, ARB_feature_importances, ARB_prec_rec = get_model_results(X_train, y_train)
+
+data_penult = data[['DMSOLD', 'DMJDCAT']]
+cat_cols = ['DMJDCAT']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
+DMJDCAT_results, DMJDCAT_cm, DMJDCAT_score, DMJDCAT_columns, DMJDCAT_feature_importances, DMJDCAT_prec_rec = get_model_results(X_train, y_train)
+
 data_penult = data[['DMSOLD', 'month_week']]
 cat_cols = ['month_week']
 X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
 mWEEK_results, mWEEK_cm, mWEEK_score, mWEEK_columns, mWEEK_feature_importances, mWEEK_prec_rec = get_model_results(X_train, y_train)
-
 
 data_penult = data[['DMSOLD', 'Season']]
 cat_cols = ['Season']
 X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
 season_results, season_cm, season_score, season_columns, season_feature_importances, season_prec_rec = get_model_results(X_train, y_train)
 
+data_penult = data[['DMMODELYR', 'DMSOLD']]
+X_train, X_test, y_train, y_test = prep_data(data_penult)
+MODELYR_results, MODELYR_cm, MODELYR_score, MODELYR_columns, MODELYR_feature_importances, MODELYR_prec_rec = get_model_results(X_train, y_train)
+
+data_penult = data[['DMSOLD', 'DMECRDATE_IND']]
+cat_cols = ['DMECRDATE_IND']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
+DMECR_results, DMECR_cm, DMECR_score, DMECR_columns, DMECR_feature_importances, DMECR_prec_rec = get_model_results(X_train, y_train)
+
+
+data_penult = data[['DMSOLD', 'DMSELLRNM','DMMODEL']] #slr
+cat_cols = ['DMSELLRNM','DMMODEL']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
+slr_results, slr_cm, slr_score, slr_columns, slr_feature_importances, slr_prec_rec = get_model_results(X_train, y_train)
+
 
 data_penult = data[['DMSOLD', 'SMILES']]
 X_train, X_test, y_train, y_test = prep_data(data_penult)
 SMILES_results, SMILES_cm, SMILES_score, SMILES_columns, SMILES_feature_importances, SMILES_prec_rec = get_model_results(X_train, y_train)
+
+data_penult = data[['imp_STIMES','DMSOLD']]
+X_train, X_test, y_train, y_test = prep_data(data_penult)
+impSTIMES_results, impSTIMES_cm, impSTIMES_score, impSTIMES_columns, impSTIMES_feature_importances, impSTIMES_prec_rec = get_model_results(X_train, y_train)
+
+
+data_penult = data[['STIMES_bin2','DMSOLD']]
+cat_cols = ['STIMES_bin2']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
+STIMES2_results, STIMES2_cm, STIMES2_score, STIMES2_columns, STIMES2_feature_importances, STIMES2_prec_rec = get_model_results(X_train, y_train)
+###################################################################################################
+
+data['ARBxMDLYR'] = data['Arbitration_bins'] + ' ' + data['DMMODELYR'].map(str)
+data_penult = data[['ARBxMDLYR', 'DMSOLD']]
+cat_cols = ['ARBxMDLYR']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
+ARBxMDLR_results, ARBxMDLR_cm, ARBxMDLR_score, ARBxMDLR_columns, ARBxMDLR_feature_importances, ARBxMDLR_prec_rec = get_model_results(X_train, y_train)
+
+data_penult = data[['DMMODELYR','Arbitration_bins', 'DMSOLD']]
+cat_cols = ['Arbitration_bins']
+X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
+ARBMDLR_results, ARBMDLR_cm, ARBMDLR_score, ARBMDLR_columns, ARBMDLR_feature_importances, ARBMDLR_prec_rec = get_model_results(X_train, y_train)
+
+
 
 
 data_penult = data[['DMSTDESL', 'DMMONTH', 'DMSALWK', 'SLANE_', 'SRUN_', 'imp_STIMES','DMSOLD', 'DMSELLRNM',
@@ -122,12 +183,6 @@ X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
 results_1, cm_1, score_1, columns_1, feature_importances_1 = get_model_results(X_train, y_train)
 
 
-data_penult = data[['DMSOLD', 'DMSELLRNM','DMMODEL']] #slr
-cat_cols = ['DMSELLRNM','DMMODEL']
-X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
-slr_results, slr_cm, slr_score, slr_columns, slr_feature_importances = get_model_results(X_train, y_train)
-
-
 data_penult = data[['DMSOLD', 'DMSELLRNM','DMMODEL','imp_STIMES']]
 cat_cols = ['DMSELLRNM','DMMODEL']
 X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols, scaling = True)
@@ -139,29 +194,6 @@ cat_cols = ['DMSELLRNM','DMMODEL']
 X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
 AGEDSLR_results, AGEDSLR_cm, AGEDSLR_score, AGEDSLR_columns, AGEDSLR_feature_importances, AGEDSLR_prec_rec = get_model_results(X_train, y_train)
 
-data_penult = data[['STIMES_bin2','DMSOLD']]
-cat_cols = ['STIMES_bin2']
-X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
-STIMES2_results, STIMES2_cm, STIMES2_score, STIMES2_columns, STIMES2_feature_importances = get_model_results(X_train, y_train)
-
-
-data_penult = data[['imp_STIMES','DMSOLD']]
-X_train, X_test, y_train, y_test = prep_data(data_penult)
-impSTIMES_results, impSTIMES_cm, impSTIMES_score, impSTIMES_columns, impSTIMES_feature_importances = get_model_results(X_train, y_train)
-
-
-data_penult = data[['DMSOLD', 'DMSELLRNM']]
-cat_cols = ['DMSELLRNM']
-X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
-slronly_results, slronly_cm, slronly_score, slronly_columns, slronly_feature_importances = get_model_results(X_train, y_train)
-
-
-data_penult = data[['DMSOLD', 'DMMODEL']]
-cat_cols = ['DMMODEL']
-X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
-modelonly_results, modelonly_cm, modelonly_score, modelonly_columns, modelonly_feature_importances = get_model_results(X_train, y_train)
-
-
 # gives error on LDA - SVD did not converge
 data['SLRxMODEL'] = data['DMSELLRNM'] + ' ' + data['DMMODEL']
 data = data[data['DMMODEL'].notnull()]
@@ -171,10 +203,7 @@ cat_cols = ['SLRxMODEL']
 X_train, X_test, y_train, y_test = prep_data(data_penult, cat_cols)
 SLRxMODEL_results, SLRxMODEL_cm, SLRxMODEL_score, SLRxMODEL_columns, SLRxMODEL_feature_importances = get_model_results(X_train, y_train)
 
-
-data_penult = data[['DMMODELYR', 'DMSOLD']]
-X_train, X_test, y_train, y_test = prep_data(data_penult)
-MODELYR_results, MODELYR_cm, MODELYR_score, MODELYR_columns, MODELYR_feature_importances = get_model_results(X_train, y_train)    
+    
 
 
 data_penult = data[['SFLOOR_IND', 'STIMES_bin2', 'Arbitration_bins', 'DMMODELYR_bins','DMSOLD']]
@@ -214,17 +243,7 @@ data['STIMESxDMMODEL'] = data['STIMES_bin2'] + ' ' + data['DMMODELYR_bins']
 data_penult = data[['STIMESxSFLOOR', 'STIMESxDMECR','STIMESxARB','STIMESxDMMODEL','DMSOLD']]
 
 
-data_penult = data[['DMSTDESL', 'DMMONTH', 'DMSALWK', 'SLANE_', 'SRUN_','imp_STIMES','DMSOLD', 'DMSELLRNM', 'DMMODELYR','DMMODEL','SMILES', 'DMJDCAT', 
-       'VNMMR', '% Arbitration','SFLOOR_IND','DMECRDATE_IND']]
-data_penult = data[['DMSOLD', 'DMSELLRNM','DMMODEL']] #slr
-data_penult = data[['DMSOLD', 'DMSELLRNM']]
-data_penult = data[['DMSOLD', 'DMMODEL']]
 
-
-data_penult = data[['STIMES_bin2','DMSOLD']]
-cat_cols = ['STIMES_bin2']
-data_final = data[['imp_STIMES','DMSOLD']]
-cat_cols = data_penult[['DMSELLRNM','DMMODEL','DMJDCAT','SFLOOR_IND','DMECRDATE_IND']]
 
 rfc = RandomForestClassifier()
 rfc.fit(X_train, y_train)
@@ -277,6 +296,10 @@ def get_data():
     season = pd.DataFrame({'M':[1,2,3,4,5,6,7,8,9,10,11,12],'Season':['W','W','S','S','S','Su','Su','Su','F','F','F','W']})
     raw_data = pd.merge(raw_data,season,left_on='DMMONTH',right_on='M')
     raw_data.drop('M',inplace=True,axis=1)
+    raw_data['STIMES_bin2'].replace({"<10":"before 10", ">2":"after 2"}, inplace= True)
+    raw_data['Arbitration_bins'].replace({"<=10":"less than 10", ">150":"greater than 150"}, inplace= True)
+    raw_data = raw_data[raw_data['DMMODEL'].notnull()]
+    raw_data = raw_data[raw_data['DMJDCAT'].notnull()]
     return data_dict, raw_data, case_study
 
 def prep_data(data_penult, cat_cols = False, scaling = False):
